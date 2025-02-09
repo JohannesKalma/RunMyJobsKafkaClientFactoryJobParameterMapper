@@ -34,8 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 
  * dependencies:<br>
  * - RunMyJobs<br>
- * - Jackson-databind<br>
- * - KafkaClientFactory<br>
+ * - KafkaClientFactory including dependencies<br>
  * 
  * @author JKALMA
  */
