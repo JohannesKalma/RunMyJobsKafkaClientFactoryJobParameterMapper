@@ -40,11 +40,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author JKALMA
  */
 public class JobParameterMap {
-	
+
 	SchedulerSession localSession;
 
 	private KafkaClientFactory kafkaClientFactory;
-	
+
 	/**
 	 * return an instance of KafkaClientFactory class
 	 * 
@@ -63,12 +63,20 @@ public class JobParameterMap {
 	 * ProcessDefintion usage:<br>
 	 * All parameters must be any of type String.<br>
 	 * <ul>
-	 * <li> Bare values do not need a constraint.</li>
-	 * <li> ParameterValues can be evaluated from a Table Simple constraint. Table should be configured with Key and Value<br>
-	 *   <ul><li>Table can contain a bare value or a RMJ object as Businesskey String (Starting with "Document","Credential" or "Database")</li></ul>
-	 * </li>  
-	 * <li>ParameterValues can be evaluated from a QueryFilters: Document, Credential, Database.</li>
-	 * <li>Credentials parameters "bootstrapServersCredentials", "schemaRegistryCredentials", "jdbcCredentials", when not Table or Query based, must have json string format {"userName":"[name]","password":"[password]"} </li> 
+	 * <li>Bare values do not need a constraint.</li>
+	 * <li>ParameterValues can be evaluated from a Table Simple constraint. Table
+	 * should be configured with Key and Value<br>
+	 * <ul>
+	 * <li>Table can contain a bare value or a RMJ object as Businesskey String
+	 * (Starting with "Document","Credential" or "Database")</li>
+	 * </ul>
+	 * </li>
+	 * <li>ParameterValues can be evaluated from a QueryFilters: Document,
+	 * Credential, Database.</li>
+	 * <li>Credentials parameters "bootstrapServersCredentials",
+	 * "schemaRegistryCredentials", "jdbcCredentials", when not Table or Query
+	 * based, must have json string format
+	 * {"userName":"[name]","password":"[password]"}</li>
 	 * </ul>
 	 * 
 	 * 
@@ -86,54 +94,56 @@ public class JobParameterMap {
 			if (jp.getJobDefinitionParameter().getSimpleConstraintType().equals((SimpleConstraintType.Table))) {
 				switch (jp.getJobDefinitionParameter().getName()) {
 				case "bootstrapConf":
-					for (TableValue tv: this.getBootstrapServerConfigTableValues(jp.getJobDefinitionParameter().getSimpleConstraintData(), jp.getCurrentValueString())) {
+					for (TableValue tv : this.getBootstrapServerConfigTableValues(
+							jp.getJobDefinitionParameter().getSimpleConstraintData(), jp.getCurrentValueString())) {
 						switch (tv.getColumnName()) {
 						case "bootstrapServers":
 							parameterValuesMap.put(tv.getColumnName(), tv.getColumnValue());
 							break;
 						case "bootstrapServerTruststoreCertificate":
 							if (KafkaUtil.isNotBlank(tv.getColumnValue())) {
-							  parameterValuesMap.put(tv.getColumnName(), this.getDocumentData(tv.getColumnValue()));
+								parameterValuesMap.put(tv.getColumnName(), this.getDocumentData(tv.getColumnValue()));
 							}
 							break;
 						case "bootstrapServersCredentials":
 							if (KafkaUtil.isNotBlank(tv.getColumnValue())) {
-							  parameterValuesMap.put(tv.getColumnName(), this.getCredentials(tv.getColumnValue()));
+								parameterValuesMap.put(tv.getColumnName(), this.getCredentials(tv.getColumnValue()));
 							}
 							break;
 						case "schemaRegistryURL":
 							if (KafkaUtil.isNotBlank(tv.getColumnValue())) {
-							  parameterValuesMap.put(tv.getColumnName(), tv.getColumnValue());
+								parameterValuesMap.put(tv.getColumnName(), tv.getColumnValue());
 							}
 							break;
 						case "schemaRegistryCredentials":
 							if (KafkaUtil.isNotBlank(tv.getColumnValue())) {
-							  parameterValuesMap.put(tv.getColumnName(), this.getCredentials(tv.getColumnValue()));
-							}
-							break;
-						default:
-							//
-						}					  	
-					}
-					break;
-				case "jdbcConf":
-					for (TableValue tv: this.getBootstrapServerConfigTableValues(jp.getJobDefinitionParameter().getSimpleConstraintData(), jp.getCurrentValueString())) {
-						switch (tv.getColumnName()) {
-						case "jdbcUrl":
-							if (KafkaUtil.isNotBlank(tv.getColumnValue())) {
-							  parameterValuesMap.put(tv.getColumnName(), tv.getColumnValue());
-							}
-						break;
-						case "jdbcCredentials":
-							if (KafkaUtil.isNotBlank(tv.getColumnValue())) {
-							  parameterValuesMap.put(tv.getColumnName(), this.getCredentials(tv.getColumnValue()));
+								parameterValuesMap.put(tv.getColumnName(), this.getCredentials(tv.getColumnValue()));
 							}
 							break;
 						default:
 							//
 						}
 					}
-				  break;
+					break;
+				case "jdbcConf":
+					for (TableValue tv : this.getBootstrapServerConfigTableValues(
+							jp.getJobDefinitionParameter().getSimpleConstraintData(), jp.getCurrentValueString())) {
+						switch (tv.getColumnName()) {
+						case "jdbcUrl":
+							if (KafkaUtil.isNotBlank(tv.getColumnValue())) {
+								parameterValuesMap.put(tv.getColumnName(), tv.getColumnValue());
+							}
+							break;
+						case "jdbcCredentials":
+							if (KafkaUtil.isNotBlank(tv.getColumnValue())) {
+								parameterValuesMap.put(tv.getColumnName(), this.getCredentials(tv.getColumnValue()));
+							}
+							break;
+						default:
+							//
+						}
+					}
+					break;
 				default:
 					String tableValue = getTableValue(jp.getJobDefinitionParameter().getSimpleConstraintData(),
 							jp.getCurrentValueString());
@@ -168,15 +178,19 @@ public class JobParameterMap {
 					//
 				}
 			}
-			
-			String[] credentialParametersArray = {"bootstrapServersCredentials", "schemaRegistryCredentials", "jdbcCredentials"};
-			boolean isCredentialParameter = Arrays.stream(credentialParametersArray).anyMatch(s -> s.equals(jp.getJobDefinitionParameter().getName()));
-      if (isCredentialParameter && !(jp.getJobDefinitionParameter().getSimpleConstraintType().equals((SimpleConstraintType.QueryFilter)) || jp.getJobDefinitionParameter().getSimpleConstraintType().equals((SimpleConstraintType.Table)))) {
-      	ObjectMapper objectMapper = new ObjectMapper();
-    		object = objectMapper.readValue(jp.getCurrentValueString(), Credentials.class);
-      }
 
-      parameterValuesMap.put(jp.getJobDefinitionParameter().getName(), object);
+			String[] credentialParametersArray = { "bootstrapServersCredentials", "schemaRegistryCredentials",
+					"jdbcCredentials" };
+			boolean isCredentialParameter = Arrays.stream(credentialParametersArray)
+					.anyMatch(s -> s.equals(jp.getJobDefinitionParameter().getName()));
+			if (isCredentialParameter
+					&& !(jp.getJobDefinitionParameter().getSimpleConstraintType().equals((SimpleConstraintType.QueryFilter))
+							|| jp.getJobDefinitionParameter().getSimpleConstraintType().equals((SimpleConstraintType.Table)))) {
+				ObjectMapper objectMapper = new ObjectMapper();
+				object = objectMapper.readValue(jp.getCurrentValueString(), Credentials.class);
+			}
+
+			parameterValuesMap.put(jp.getJobDefinitionParameter().getName(), object);
 		}
 
 		/*
@@ -185,7 +199,7 @@ public class JobParameterMap {
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		this.kafkaClientFactory = objectMapper.convertValue(parameterValuesMap, KafkaClientFactory.class);
-			
+
 		switch (kafkaClientFactory.getTypeDeSer()) {
 		case AVRODES:
 		case STRINGDES:
@@ -205,78 +219,80 @@ public class JobParameterMap {
 		default:
 			break;
 		}
-		
-		/** RMJ create new jobfile for default output, now jcsOut is no longer needed*/
+
+		/** RMJ create new jobfile for default output, now jcsOut is no longer needed */
 		JobFile log = j.createJobFile();
 		log.setFileType(JobFileType.Output);
 		log.setName("kafkaOut.log");
-		log.setOrder(JobFile.CUSTOMER_ORDER_START+1);
+		log.setOrder(JobFile.CUSTOMER_ORDER_START + 1);
 		log.setFormat(this.localSession.getFormatByName(Format.TEXTFILE));
 		log.setFileNameAutomatic();
-	  try {
-	    this.localSession.persist();
-	  } finally {
-	  }
-	  this.kafkaClientFactory.setKafkaProcessLogPrintWriter(new PrintWriter(new FileOutputStream(log.getFileName()), true));
+		try {
+			this.localSession.persist();
+		} finally {
+		}
+		this.kafkaClientFactory
+				.setKafkaProcessLogPrintWriter(new PrintWriter(new FileOutputStream(log.getFileName()), true));
 	}
-	
+
 	private Table getTable(String tb) throws Exception {
 		try {
 			Partition p = localSession.getDefaultPartition();
 			String t = tb;
 			String[] ts = t.split("\\.");
-	
+
 			if (ts.length == 2) {
 				p = localSession.getPartitionByName(ts[0]);
 				t = ts[1];
 			}
-	
+
 			return localSession.getTableByName(p, t);
 		} catch (Exception e) {
-			String message = String.format("getTable : %s%n",tb); 
-			throw new Exception (message,e);
+			String message = String.format("getTable : %s%n", tb);
+			throw new Exception(message, e);
 		}
 	}
-	
+
 	private RWIterable<TableValue> getBootstrapServerConfigTableValues(String table, String key) throws Exception {
 		Table t = this.getTable(table);
-	  return t.getTableRowByKey(key);
+		return t.getTableRowByKey(key);
 	}
-	
+
 	private String getTableValue(String tb, String searchKey) throws Exception {
 		try {
-		  Table table = this.getTable(tb);
-		  TableValue tv = table.getTableValueBySearchKeySearchColumnName(searchKey, "Value");
-		  return tv.getColumnValue();
+			Table table = this.getTable(tb);
+			TableValue tv = table.getTableValueBySearchKeySearchColumnName(searchKey, "Value");
+			return tv.getColumnValue();
 		} catch (Exception e) {
-			String message = String.format("getTableValue table: %s, key: %s%n",tb,searchKey); 
-			throw new Exception(message,e);
+			String message = String.format("getTableValue table: %s, key: %s%n", tb, searchKey);
+			throw new Exception(message, e);
 		}
 
 	}
 
 	private String getDocumentData(String key) throws Exception {
 		try {
-		  return BusinessKeyLookup.getDocumentByBusinessKey(localSession, key).getDataAsString();
+			return BusinessKeyLookup.getDocumentByBusinessKey(localSession, key).getDataAsString();
 		} catch (Exception e) {
-			throw new Exception(String.format("getDocumentData for businesskey: %s%n",key),e);
+			throw new Exception(String.format("getDocumentData for businesskey: %s%n", key), e);
 		}
 	}
 
 	private Credentials getCredentials(String key) throws Exception {
 		try {
-		  Credential credential = BusinessKeyLookup.getCredentialByBusinessKey(localSession, key);
-		  return new Credentials(credential.getRealUser(), localSession.unprotectPassword(credential.getProtectedPassword()));
+			Credential credential = BusinessKeyLookup.getCredentialByBusinessKey(localSession, key);
+			return new Credentials(credential.getRealUser(),
+					localSession.unprotectPassword(credential.getProtectedPassword()));
 		} catch (Exception e) {
-			throw new Exception(String.format("getCredentials for businesskey: %s%n",key),e);
+			throw new Exception(String.format("getCredentials for businesskey: %s%n", key), e);
 		}
 	}
 
 	private String getJdbcUrl(String key) throws Exception {
-		try {	
+		try {
 			return BusinessKeyLookup.getDatabaseByBusinessKey(localSession, key).getJdbcUrl();
 		} catch (Exception e) {
-			throw new Exception(String.format("getJdbcUrl for businesskey: %s%n",key),e);
+			throw new Exception(String.format("getJdbcUrl for businesskey: %s%n", key), e);
 		}
 	}
 

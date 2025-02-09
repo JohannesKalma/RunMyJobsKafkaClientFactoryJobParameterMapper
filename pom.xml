@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>AswatsonRMJKafka</groupId>
-  <artifactId>kafka-rmj-jobParameterMap-lib</artifactId>
-  <version>1.0.0</version>
+  <artifactId>kafka-rmj-jobParameterMapper</artifactId>
+  <version>1.0.10</version>
   <name>Kafka RMJ JobParameterMap Library</name>
   <packaging>jar</packaging>
   <build>
