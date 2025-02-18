@@ -16,6 +16,7 @@ import com.redwood.scheduler.api.model.interfaces.RWIterable;
 import com.redwood.scheduler.api.scripting.variables.ScriptSessionFactory;
 
 import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -230,8 +231,10 @@ public class JobParameterMap {
 			this.localSession.persist();
 		} finally {
 		}
+		
+		FileOutputStream fos = new FileOutputStream(log.getFileName());
 		this.kafkaClientFactory
-				.setKafkaProcessLogPrintWriter(new PrintWriter(new FileOutputStream(log.getFileName()), true));
+				.setKafkaProcessLogPrintWriter(new PrintWriter(fos, true));
 	}
 
 	private Table getTable(String tb) throws Exception {
