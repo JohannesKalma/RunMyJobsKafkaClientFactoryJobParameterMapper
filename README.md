@@ -1,2 +1,0 @@
-# RunMyJobsKafkaClientFactoryJobParameterMapper
-RunMyJobs job Parametermapper for KafkaClientFactory 
